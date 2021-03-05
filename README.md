@@ -6,7 +6,7 @@ This repo first create a virtual robotics environment using [Gibson](https://git
 ![demo](https://github.com/dingkwang/Gibson_Spares_Depth_Completion/blob/main/result/GUSampling2.gif)
 ## Run the project
 
-1. Install Gibson. There are several options. You can download the Gibson](https://github.com/StanfordVL/iGibson), or follow  http://svl.stanford.edu/igibson/docs/installation.html.
+1. Install Gibson. There are several options. You can download the [Gibson](https://github.com/StanfordVL/iGibson), or follow  http://svl.stanford.edu/igibson/docs/installation.html.
 
 2. Run iGibson/demo5.py to generate RGB images and LiDAR depth images.
 
