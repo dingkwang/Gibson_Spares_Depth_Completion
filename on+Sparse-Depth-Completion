@@ -1,0 +1,149 @@
+[33mcommit e31c60e869ed51041e7253552cc0dbbf2b6147d4[m
+Author: dingkang <wangdk93@outlook.com>
+Date:   Thu Mar 4 11:35:21 2021 -0500
+
+    add iGibson
+
+[1mdiff --git a/README.md b/README.md[m
+[1mindex 6962552..f004968 100644[m
+[1m--- a/README.md[m
+[1m+++ b/README.md[m
+[36m@@ -1,129 +1,9 @@[m
+[31m-# Sparse-Depth-Completion[m
+[32m+[m[32m# Gibson+Sparse-Depth-Completion[m
+ [m
+[31m-This repo contains the implementation of our paper [Sparse and Noisy LiDAR Completion with RGB Guidance and Uncertainty](https://arxiv.org/abs/1902.05356) by [Wouter Van Gansbeke](https://github.com/wvangansbeke), Davy Neven, Bert De Brabandere and Luc Van Gool.[m
+[32m+[m[32mThis repo first create a virtual robotics environment using [Gibson](https://github.com/StanfordVL/iGibson). RGB and spare LiDAR data are generated in the Gibson. Then I use the trained model of Sparse-Depth-Completion (https://github.com/wvangansbeke/Sparse-Depth-Completion) to perform guided up sampling and generate a dense depth image. The training runs on [HIPERGATOR 3.0](https://www.rc.ufl.edu/services/hipergator/).[m
+ [m
+[31m-If you find this interesting or relevant to your work, consider citing:[m
+ [m
+[31m-```[m
+[31m-@inproceedings{wvangansbeke_depth_2019,[m
+[31m-    author={Van Gansbeke, Wouter and Neven, Davy and De Brabandere, Bert and Van Gool, Luc},[m
+[31m-    booktitle={2019 16th International Conference on Machine Vision Applications (MVA)},[m
+[31m-    title={Sparse and Noisy LiDAR Completion with RGB Guidance and Uncertainty},[m
+[31m-    year={2019},[m
+[31m-    pages={1-6},[m
+[31m-    organization={IEEE}[m
+[31m-}[m
+[31m-```[m
+ [m
+[31m-## License[m
+ [m
+[31m-This software is released under a creative commons license which allows for personal and research use only. For a commercial license please contact the authors. You can view a license summary [here](http://creativecommons.org/licenses/by-nc/4.0/)[m
+ [m
+[31m-## Introduction[m
+[31m-Monocular depth prediction methods fail to generate absolute and precise depth maps and stereoscopic approaches are still significantly outperformed by LiDAR based approaches. The goal of the depth completion task is to generate dense depth predictions from sparse and irregular point clouds. This project makes use of uncertainty to combine multiple sensor data in order to generate accurate depth predictions. Mapped lidar points together with RGB images (monococular) are used in this framework. This method holds the **1st place** entry on the [KITTI depth completion benchmark](http://www.cvlibs.net/datasets/kitti/eval_depth.php?benchmark=depth_completion) at the time of submission of the paper.[m
+ [m
+[31m-The contribution of this paper is threefold:[m
+[31m-* Global and local information are combined in order to accurately complete and correct the sparse and noisy LiDAR input. Monocular RGB images are used for the guidance of this depth completion task.[m
+[31m-* Confidence maps are learned for the global branch and the local branch in an unsupervised manner. The predicted depth maps are weighted by their respective confidence map. This is the late fusion technique used in our framework.[m
+[31m-* This method ranks first on the KITTI depth completion benchmark without using additional data or postprocessing.[m
+[31m-[m
+[31m-See full demo on [YouTube](https://www.youtube.com/watch?v=Kr0W7io5rHw&feature=youtu.be). The predictions of our model for the KITTI test set can be downloaded [here](https://drive.google.com/drive/folders/1U7dvH4sC85KRVuV19fRpaMzJjE-m3D9x).[m
+[31m-[m
+[31m-![demo](https://user-images.githubusercontent.com/9694230/51806092-db766c00-2275-11e9-8de0-888bed0fc9e8.gif)[m
+[31m-[m
+[31m-[m
+[31m-## Requirements[m
+[31m-Python 3.7[m
+[31m-The most important packages are pytorch, torchvision, numpy, pillow and matplotlib.[m
+[31m-(Works with Pytorch 1.1)[m
+[31m-[m
+[31m-[m
+[31m-## Dataset[m
+[31m-The [Kitti dataset](www.cvlibs.net/datasets/kitti/) has been used. First download the dataset of the depth completion. Secondly, you'll need to unzip and download the camera images from kitti. [m
+[31m-I used the file `download_raw_files.sh`, but this is at your own risk. Make sure you understand it, otherwise don't use it. If you want to keep it safe, go to kitti's website. [m
+[31m-[m
+[31m-The complete dataset consists of 85898 training samples, 6852 validation samples, 1000 selected validation samples and 1000 test samples.[m
+[31m-[m
+[31m-## Preprocessing[m
+[31m-This step is optional, but allows you to transform the images to jpgs and to downsample the original lidar frames. This will create a new dataset in $dest.[m
+[31m-You can find the required preprocessing in:[m
+[31m-`Datasets/Kitti_loader.py`[m
+[31m-[m
+[31m-Run:[m
+[31m-[m
+[31m-`source Shell/preprocess $datapath $dest $num_samples`[m
+[31m-[m
+[31m-(Firstly, I transformed the png's to jpg - images to save place. Secondly, two directories are built i.e. one for training and one for validation. See `Datasets/Kitti_loader.py`)[m
+[31m-[m
+[31m-Dataset structure should look like this:[m
+[31m-```[m
+[31m-|--depth selection[m
+[31m-|-- Depth[m
+[31m-     |-- train[m
+[31m-           |--date[m
+[31m-               |--sequence1[m
+[31m-               | ...[m
+[31m-     |--validation[m
+[31m-|--RGB[m
+[31m-    |--train[m
+[31m-         |--date[m
+[31m-             |--sequence1[m
+[31m-             | ...[m
+[31m-    |--validation[m
+[31m-```[m
+[31m-[m
+[31m-[m
+[31m-## Run Code[m
+[31m-To run the code:[m
+[31m-[m
+[31m-`python main.py --data_path /path/to/data/ --lr_policy plateau`[m
+[31m-[m
+[31m-Flags:[m
+[31m-- Set flag "input_type" to rgb or depth.[m
+[31m-- Set flag "pretrained" to true or false to use a model pretrained on Cityscapes for the global branch.[m
+[31m-- See `python main.py --help` for more information.[m
+[31m-[m
+[31m-or [m
+[31m-[m
+[31m-`source Shell/train.sh $datapath`[m
+[31m-[m
+[31m-checkout more details in the bash file.[m
+[31m-[m
+[31m-## Trained models[m
+[31m-Our network architecture is based on [ERFNet](https://github.com/Eromera/erfnet_pytorch).[m
+[31m-[m
+[31m-You can find the model pretrained on Cityscapes [here](https://drive.google.com/drive/folders/1U7dvH4sC85KRVuV19fRpaMzJjE-m3D9x?usp=sharing). This model is used for the global network.[m
+[31m-[m
+[31m-You can find a fully trained model and its corresponding predictions for the KITTI test set [here](https://drive.google.com/drive/folders/1U7dvH4sC85KRVuV19fRpaMzJjE-m3D9x?usp=sharing). [m
+[31m-The RMSE is around 802 mm on the selected validation set for this model as reported in the paper. [m
+[31m-[m
+[31m-To test it: [m
+[31m-Save the model in a folder in the `Saved` directory.[m
+[31m-[m
+[31m-and execute the following command:[m
+[31m-[m
+[31m-`source Test/test.sh /path/to/directory_with_saved_model/ $num_samples /path/to/dataset/ /path/to/directory_with_ground_truth_for_selected_validation_files/`[m
+[31m-[m
+[31m-(You might have to recompile the C files for testing, provided by KITTI, if your architecture is different from mine)[m
+[31m-[m
+[31m-## Results[m
+[31m-[m
+[31m-Comparision with state-of-the-art:[m
+[31m-[m
+[31m-![results](https://user-images.githubusercontent.com/9694230/59205060-49c32780-8ba2-11e9-8a87-34d8c3f99756.PNG)[m
+[31m-[m
+[31m-[m
+[31m-## Discussion[m
+[31m-[m
+[31m-Practical discussion:[m
+[31m-[m
+[31m-- I recently increased the stability of the training process and I also made the convergence faster by adding some skip connections between the global and local network.[m
+[31m-Initially I only used guidance by multiplication with an attention map (=probability), but found out that it is less robust and that differences between a focal MSE and vanilla MSE loss function were now negligible.[m
+[31m-Be aware that this change will alter the appearance of the confidence maps since fusion happens at mutliple stages now.[m
+[31m-[m
+[31m-- Feel free to experiment with different architectures for the global or local network. It is easy to add new architectures to `Models/__init__.py`[m
+[31m-[m
+[31m-- I used a Tesla V100 GPU for evaluation.[m
+[31m-[m
+[31m-## Acknowledgement[m
+[31m-This work was supported by Toyota, and was carried out at the TRACE Lab at KU Leuven (Toyota Research on Automated Cars in Europe - Leuven)[m
+[1mdiff --git a/iGibson b/iGibson[m
+[1mnew file mode 160000[m
+[1mindex 0000000..3a52e30[m
+[1m--- /dev/null[m
+[1m+++ b/iGibson[m
+[36m@@ -0,0 +1 @@[m
+[32m+[m[32mSubproject commit 3a52e30aa3dced33f92f482b27fa2f139ad09ba7[m
